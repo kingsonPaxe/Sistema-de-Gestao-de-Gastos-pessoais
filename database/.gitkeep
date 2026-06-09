@@ -1,0 +1,2 @@
+# Este diretório pode ser usado para scripts SQL auxiliares ou backups.
+# As tabelas são criadas automaticamente via SQLAlchemy (db.create_all()).

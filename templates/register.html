@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}Cadastro{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <i class="bi bi-person-plus-fill"></i>
+            </div>
+            <h2 class="auth-title">Criar conta</h2>
+            <p class="auth-subtitle">Comece a controlar suas finanças hoje</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.register') }}" class="auth-form" novalidate>
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="name" name="name"
+                       placeholder="Seu nome" required minlength="2">
+                <label for="name"><i class="bi bi-person me-2"></i>Nome completo</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="email" class="form-control" id="email" name="email"
+                       placeholder="seu@email.com" required>
+                <label for="email"><i class="bi bi-envelope me-2"></i>Email</label>
+            </div>
+
+            <div class="form-floating mb-3 position-relative">
+                <input type="password" class="form-control" id="password" name="password"
+                       placeholder="Mínimo 6 caracteres" required minlength="6">
+                <label for="password"><i class="bi bi-lock me-2"></i>Senha</label>
+                <button type="button" class="btn-password-toggle" onclick="togglePassword('password')">
+                    <i class="bi bi-eye" id="password-eye"></i>
+                </button>
+            </div>
+
+            <div class="form-floating mb-4 position-relative">
+                <input type="password" class="form-control" id="confirm_password" name="confirm_password"
+                       placeholder="Repita a senha" required minlength="6">
+                <label for="confirm_password"><i class="bi bi-shield-lock me-2"></i>Confirmar senha</label>
+                <button type="button" class="btn-password-toggle" onclick="togglePassword('confirm_password')">
+                    <i class="bi bi-eye" id="confirm_password-eye"></i>
+                </button>
+            </div>
+
+            <!-- Password strength indicator -->
+            <div class="password-strength mb-4">
+                <div class="strength-bar">
+                    <div class="strength-fill" id="strengthFill"></div>
+                </div>
+                <small class="strength-text" id="strengthText">Digite uma senha</small>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-auth w-100">
+                <i class="bi bi-person-check me-2"></i>Criar conta
+            </button>
+        </form>
+
+        <div class="auth-divider"><span>ou</span></div>
+
+        <div class="auth-footer">
+            <p>Já tem uma conta? <a href="{{ url_for('auth.login') }}" class="auth-link">Faça login</a></p>
+        </div>
+    </div>
+
+    <div class="auth-illustration">
+        <div class="illustration-content">
+            <h3>Tudo que você precisa</h3>
+            <p>Uma plataforma completa para organizar seu dinheiro e alcançar seus objetivos financeiros.</p>
+            <ul class="feature-list">
+                <li><i class="bi bi-check-circle-fill"></i> Dashboard intuitivo</li>
+                <li><i class="bi bi-check-circle-fill"></i> Categorias personalizadas</li>
+                <li><i class="bi bi-check-circle-fill"></i> Relatórios profissionais</li>
+                <li><i class="bi bi-check-circle-fill"></i> 100% seguro e privado</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const eye = document.getElementById(fieldId + '-eye');
+    if (field.type === 'password') {
+        field.type = 'text';
+        eye.classList.replace('bi-eye', 'bi-eye-slash');
+    } else {
+        field.type = 'password';
+        eye.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+}
+
+document.getElementById('password').addEventListener('input', function() {
+    const val = this.value;
+    const fill = document.getElementById('strengthFill');
+    const text = document.getElementById('strengthText');
+    let strength = 0;
+    if (val.length >= 6) strength++;
+    if (val.length >= 10) strength++;
+    if (/[A-Z]/.test(val)) strength++;
+    if (/[0-9]/.test(val)) strength++;
+    if (/[^A-Za-z0-9]/.test(val)) strength++;
+
+    const levels = [
+        { pct: 0, color: '#e2e8f0', label: 'Digite uma senha' },
+        { pct: 20, color: '#ef4444', label: 'Muito fraca' },
+        { pct: 40, color: '#f97316', label: 'Fraca' },
+        { pct: 60, color: '#f59e0b', label: 'Razoável' },
+        { pct: 80, color: '#10b981', label: 'Forte' },
+        { pct: 100, color: '#059669', label: 'Muito forte' },
+    ];
+    const level = levels[Math.min(strength, 5)];
+    fill.style.width = level.pct + '%';
+    fill.style.backgroundColor = level.color;
+    text.textContent = level.label;
+    text.style.color = level.color;
+});
+</script>
+{% endblock %}

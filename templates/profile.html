@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% block title %}Meu Perfil{% endblock %}
+{% block page_title %}Meu Perfil{% endblock %}
+
+{% block authenticated_content %}
+<div class="row g-4">
+
+    <!-- Profile Info -->
+    <div class="col-xl-4">
+        <div class="card profile-card text-center">
+            <div class="card-body py-4">
+                <div class="profile-avatar">{{ current_user.name[0].upper() }}</div>
+                <h4 class="profile-name mt-3">{{ current_user.name }}</h4>
+                <p class="profile-email text-muted">{{ current_user.email }}</p>
+                <p class="text-muted small">Membro desde {{ current_user.created_at|format_date('%d/%m/%Y') }}</p>
+                <hr>
+                <div class="profile-stats">
+                    <div class="profile-stat">
+                        <span class="stat-number text-success" id="profileIncomeCount">—</span>
+                        <span class="stat-label">Receitas</span>
+                    </div>
+                    <div class="profile-stat">
+                        <span class="stat-number text-danger" id="profileExpenseCount">—</span>
+                        <span class="stat-label">Despesas</span>
+                    </div>
+                    <div class="profile-stat">
+                        <span class="stat-number" id="profileCatCount">{{ user_categories|length }}</span>
+                        <span class="stat-label">Categorias</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="col-xl-8">
+        <div class="row g-4">
+
+            <!-- Update Profile Form -->
+            <div class="col-12">
+                <div class="card form-section-card">
+                    <div class="card-header form-section-card__header">
+                        <h5><i class="bi bi-person-fill me-2"></i>Informações Pessoais</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('categories.profile') }}">
+                            <input type="hidden" name="action" value="update_profile">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="name" class="form-label">Nome completo</label>
+                                    <input type="text" class="form-control" id="name" name="name"
+                                           value="{{ current_user.name }}" required minlength="2">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="email" name="email"
+                                           value="{{ current_user.email }}" required>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save me-2"></i>Salvar Alterações
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Change Password -->
+            <div class="col-12">
+                <div class="card form-section-card">
+                    <div class="card-header form-section-card__header">
+                        <h5><i class="bi bi-shield-lock-fill me-2"></i>Alterar Senha</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('categories.profile') }}">
+                            <input type="hidden" name="action" value="change_password">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label for="current_password" class="form-label">Senha atual</label>
+                                    <input type="password" class="form-control" id="current_password"
+                                           name="current_password" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="new_password" class="form-label">Nova senha</label>
+                                    <input type="password" class="form-control" id="new_password"
+                                           name="new_password" required minlength="6">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="confirm_password" class="form-label">Confirmar nova senha</label>
+                                    <input type="password" class="form-control" id="confirm_password"
+                                           name="confirm_password" required minlength="6">
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="bi bi-key me-2"></i>Alterar Senha
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom Categories -->
+            <div class="col-12">
+                <div class="card form-section-card">
+                    <div class="card-header form-section-card__header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-tags-fill me-2"></i>Minhas Categorias</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Add Category Form -->
+                        <form method="POST" action="{{ url_for('categories.profile') }}" class="d-flex gap-2 mb-4">
+                            <input type="hidden" name="action" value="add_category">
+                            <input type="text" class="form-control" name="category_name"
+                                   placeholder="Nome da nova categoria..." required>
+                            <button type="submit" class="btn btn-outline-primary text-nowrap">
+                                <i class="bi bi-plus-lg me-1"></i>Adicionar
+                            </button>
+                        </form>
+
+                        <!-- Default Categories -->
+                        <h6 class="text-muted mb-2">Categorias padrão do sistema</h6>
+                        <div class="category-chips mb-4">
+                            {% set defaults = ['Alimentação', 'Transporte', 'Saúde', 'Educação', 'Lazer', 'Moradia', 'Salário', 'Outros'] %}
+                            {% for cat in defaults %}
+                            <span class="category-chip category-chip--default">
+                                <i class="bi bi-tag-fill me-1"></i>{{ cat }}
+                            </span>
+                            {% endfor %}
+                        </div>
+
+                        <!-- User Categories -->
+                        {% if user_categories %}
+                        <h6 class="text-muted mb-2">Suas categorias personalizadas</h6>
+                        <div class="category-chips">
+                            {% for cat in user_categories %}
+                            <span class="category-chip category-chip--custom">
+                                <i class="bi bi-tag me-1"></i>{{ cat.name }}
+                                <form method="POST" action="{{ url_for('categories.delete_category', cat_id=cat.id) }}"
+                                      class="d-inline" onsubmit="return confirm('Excluir categoria {{ cat.name }}?')">
+                                    <button type="submit" class="btn-chip-delete" title="Excluir">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </form>
+                            </span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted small">Você ainda não criou categorias personalizadas.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Report -->
+            <div class="col-12">
+                <div class="card form-section-card">
+                    <div class="card-header form-section-card__header">
+                        <h5><i class="bi bi-file-earmark-pdf-fill me-2"></i>Exportar Relatório PDF</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="GET" action="{{ url_for('reports.generate_pdf') }}" class="row g-3 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label">Data início (opcional)</label>
+                                <input type="date" class="form-control" name="date_from">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Data fim (opcional)</label>
+                                <input type="date" class="form-control" name="date_to">
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-danger w-100">
+                                    <i class="bi bi-download me-2"></i>Gerar PDF
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

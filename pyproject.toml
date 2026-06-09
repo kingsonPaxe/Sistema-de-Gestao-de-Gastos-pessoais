@@ -1,0 +1,16 @@
+[project]
+name = "personal-finance-manager"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "flask==3.0.3",
+    "flask-login==0.6.3",
+    "flask-sqlalchemy==3.1.1",
+    "psycopg2-binary>=2.9.12",
+    "python-dotenv==1.0.1",
+    "reportlab==4.2.0",
+    "sqlalchemy==2.0.41",
+    "werkzeug==3.0.3",
+]

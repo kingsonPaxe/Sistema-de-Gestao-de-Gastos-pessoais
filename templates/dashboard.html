@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block authenticated_content %}
+<!-- Summary Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card stat-card--balance">
+            <div class="stat-card__icon">
+                <i class="bi bi-wallet2"></i>
+            </div>
+            <div class="stat-card__body">
+                <span class="stat-card__label">Saldo Disponível</span>
+                <span class="stat-card__value {% if balance < 0 %}text-danger{% endif %}">
+                    {{ balance|kwanza }}
+                </span>
+            </div>
+            <div class="stat-card__trend">
+                <i class="bi bi-{% if balance >= 0 %}trending-up text-success{% else %}trending-down text-danger{% endif %}"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card stat-card--income">
+            <div class="stat-card__icon">
+                <i class="bi bi-arrow-up-circle-fill"></i>
+            </div>
+            <div class="stat-card__body">
+                <span class="stat-card__label">Receitas do Mês</span>
+                <span class="stat-card__value text-success">{{ monthly_income|kwanza }}</span>
+            </div>
+            <div class="stat-card__trend">
+                <a href="{{ url_for('income.index') }}" class="btn-stat-link">Ver tudo <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card stat-card--expense">
+            <div class="stat-card__icon">
+                <i class="bi bi-arrow-down-circle-fill"></i>
+            </div>
+            <div class="stat-card__body">
+                <span class="stat-card__label">Despesas do Mês</span>
+                <span class="stat-card__value text-danger">{{ monthly_expense|kwanza }}</span>
+            </div>
+            <div class="stat-card__trend">
+                <a href="{{ url_for('expense.index') }}" class="btn-stat-link">Ver tudo <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card stat-card--savings">
+            <div class="stat-card__icon">
+                <i class="bi bi-piggy-bank-fill"></i>
+            </div>
+            <div class="stat-card__body">
+                <span class="stat-card__label">Taxa de Poupança</span>
+                <span class="stat-card__value {% if savings_rate >= 0 %}text-success{% else %}text-danger{% endif %}">
+                    {{ "%.1f"|format(savings_rate) }}%
+                </span>
+            </div>
+            <div class="stat-card__trend">
+                <span class="text-muted small">{{ monthly_savings|kwanza }}</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card stat-card--transactions">
+            <div class="stat-card__icon">
+                <i class="bi bi-receipt"></i>
+            </div>
+            <div class="stat-card__body">
+                <span class="stat-card__label">Transações</span>
+                <span class="stat-card__value">{{ total_transactions }}</span>
+            </div>
+            <div class="stat-card__trend">
+                <span class="text-muted small">registros totais</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-4 mb-4">
+    <div class="col-xl-5 col-lg-6">
+        <div class="card chart-card">
+            <div class="card-header chart-card__header">
+                <h5 class="chart-card__title">
+                    <i class="bi bi-pie-chart-fill me-2"></i>Despesas por Categoria
+                </h5>
+            </div>
+            <div class="card-body chart-card__body">
+                <canvas id="expensesPieChart" height="260"></canvas>
+                <div id="pieChartEmpty" class="chart-empty d-none">
+                    <i class="bi bi-pie-chart"></i>
+                    <p>Sem despesas registradas</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-7 col-lg-6">
+        <div class="card chart-card">
+            <div class="card-header chart-card__header">
+                <h5 class="chart-card__title">
+                    <i class="bi bi-bar-chart-fill me-2"></i>Receitas vs Despesas por Mês
+                </h5>
+                <span class="chart-year-badge" id="chartYear"></span>
+            </div>
+            <div class="card-body chart-card__body">
+                <canvas id="monthlyBarChart" height="260"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions + Recent Transactions -->
+<div class="row g-4">
+    <div class="col-xl-4">
+        <div class="card quick-actions-card">
+            <div class="card-header chart-card__header">
+                <h5 class="chart-card__title"><i class="bi bi-lightning-fill me-2"></i>Ações Rápidas</h5>
+            </div>
+            <div class="card-body">
+                <div class="quick-actions-grid">
+                    <a href="{{ url_for('income.add') }}" class="quick-action quick-action--income">
+                        <i class="bi bi-plus-circle-fill"></i>
+                        <span>Nova Receita</span>
+                    </a>
+                    <a href="{{ url_for('expense.add') }}" class="quick-action quick-action--expense">
+                        <i class="bi bi-dash-circle-fill"></i>
+                        <span>Nova Despesa</span>
+                    </a>
+                    <a href="{{ url_for('reports.generate_pdf') }}" class="quick-action quick-action--report">
+                        <i class="bi bi-file-earmark-pdf-fill"></i>
+                        <span>Exportar PDF</span>
+                    </a>
+                    <a href="{{ url_for('categories.profile') }}" class="quick-action quick-action--profile">
+                        <i class="bi bi-person-circle"></i>
+                        <span>Perfil</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-8">
+        <div class="card transactions-card">
+            <div class="card-header chart-card__header d-flex justify-content-between align-items-center">
+                <h5 class="chart-card__title mb-0">
+                    <i class="bi bi-clock-history me-2"></i>Transações Recentes
+                </h5>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('income.index') }}" class="btn btn-sm btn-outline-success">Receitas</a>
+                    <a href="{{ url_for('expense.index') }}" class="btn btn-sm btn-outline-danger">Despesas</a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_transactions %}
+                <div class="transactions-list">
+                    {% for t in recent_transactions %}
+                    <div class="transaction-item">
+                        <div class="transaction-icon transaction-icon--{{ t.type }}">
+                            <i class="bi bi-arrow-{% if t.type == 'income' %}up{% else %}down{% endif %}-circle-fill"></i>
+                        </div>
+                        <div class="transaction-info">
+                            <span class="transaction-title">{{ t.title }}</span>
+                            <span class="transaction-meta">{{ t.category }} • {{ t.date|format_date }}</span>
+                        </div>
+                        <div class="transaction-amount transaction-amount--{{ t.type }}">
+                            {{ t.amount|kwanza }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-transactions">
+                    <i class="bi bi-inbox"></i>
+                    <p>Nenhuma transação registrada ainda.</p>
+                    <a href="{{ url_for('income.add') }}" class="btn btn-primary btn-sm">Adicionar primeira receita</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
