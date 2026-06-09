@@ -10,7 +10,7 @@ wheels/
 .venv
 GUIA_RAPIDO_ANGOLA.md
 LISTA_ENTREGAVEIS.md
-requirements.txt
+# requirements.txt
 ADAPTACAO_ANGOLA.md
 MUDANCAS_DETALHADAS.md
 RESUMO_EXECUTIVO.md
