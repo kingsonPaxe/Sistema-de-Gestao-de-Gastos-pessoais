@@ -175,7 +175,7 @@ expenses     → id, user_id, category_id, title, amount, description, date, cre
 - Senhas com hash via **Werkzeug** (`pbkdf2:sha256`)
 - Proteção de rotas via **Flask-Login** (`@login_required`)
 - Queries via **SQLAlchemy ORM** (previne SQL Injection)
-- Validação de formulários no servidor paxe
+- Validação de formulários no servidor 
 - Isolamento de dados por usuário em todas as queries
 
 ---
