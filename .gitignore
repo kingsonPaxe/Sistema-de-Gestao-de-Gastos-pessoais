@@ -10,3 +10,4 @@ wheels/
 .venv
 GUIA_RAPIDO_ANGOLA.md
 LISTA_ENTREGAVEIS.md
+requirements.txt
